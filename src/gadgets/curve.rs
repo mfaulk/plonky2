@@ -297,8 +297,6 @@ mod tests {
 
         builder.connect_affine_point(&g_plus_2g_expected, &g_plus_2g_actual);
 
-        println!("GATE COUNT: {}", builder.num_gates());
-
         let data = builder.build();
         let proof = data.prove(pw).unwrap();
 
