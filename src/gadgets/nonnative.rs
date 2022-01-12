@@ -4,8 +4,8 @@ use num::{BigUint, Integer, One, Zero};
 
 use crate::field::field_types::RichField;
 use crate::field::{extension_field::Extendable, field_types::Field};
-use crate::gadgets::biguint::BigUintTarget;
 use crate::gadgets::arithmetic_u32::U32Target;
+use crate::gadgets::biguint::BigUintTarget;
 use crate::iop::generator::{GeneratedValues, SimpleGenerator};
 use crate::iop::target::{BoolTarget, Target};
 use crate::iop::witness::{PartitionWitness, Witness};
@@ -426,6 +426,7 @@ mod tests {
 
         let x = builder.constant_nonnative(x_ff);
         let y = builder.constant_nonnative(y_ff);
+        println!("LIMBS LIMBS LIMBS {}", y.value.limbs.len());
         let product = builder.mul_nonnative(&x, &y);
 
         let product_expected = builder.constant_nonnative(product_ff);
