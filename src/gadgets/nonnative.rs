@@ -79,7 +79,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         });
 
         let sum_expected = self.add_biguint(&a.value, &b.value);
-        
+
         let modulus = self.constant_biguint(&FF::order());
         let mod_times_overflow = self.mul_biguint_by_bool(&modulus, overflow);
         let sum_actual = self.add_biguint(&sum.value, &mod_times_overflow);
@@ -97,7 +97,12 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
 
         NonNativeTarget {
             value: BigUintTarget {
-                limbs: a.value.limbs.iter().map(|l| U32Target(self.mul(l.0, t))).collect()
+                limbs: a
+                    .value
+                    .limbs
+                    .iter()
+                    .map(|l| U32Target(self.mul(l.0, t)))
+                    .collect(),
             },
             _phantom: PhantomData,
         }
@@ -122,8 +127,10 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
             _phantom: PhantomData,
         });
 
-        let sum_expected = summands.iter().fold(self.zero_biguint(), |a, b| self.add_biguint(&a, &b.value));
-        
+        let sum_expected = summands
+            .iter()
+            .fold(self.zero_biguint(), |a, b| self.add_biguint(&a, &b.value));
+
         let modulus = self.constant_biguint(&FF::order());
         let overflow_biguint = BigUintTarget {
             limbs: vec![overflow],
@@ -287,9 +294,14 @@ impl<F: RichField + Extendable<D>, const D: usize, FF: Field> SimpleGenerator<F>
     for NonNativeAdditionGenerator<F, D, FF>
 {
     fn dependencies(&self) -> Vec<Target> {
-        self.a.value.limbs.iter().cloned().chain(self.b.value.limbs.clone())
-        .map(|l| l.0)
-        .collect()
+        self.a
+            .value
+            .limbs
+            .iter()
+            .cloned()
+            .chain(self.b.value.limbs.clone())
+            .map(|l| l.0)
+            .collect()
     }
 
     fn run_once(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) {
@@ -322,16 +334,27 @@ impl<F: RichField + Extendable<D>, const D: usize, FF: Field> SimpleGenerator<F>
     for NonNativeMultipleAddsGenerator<F, D, FF>
 {
     fn dependencies(&self) -> Vec<Target> {
-        self.summands.iter().map(|summand| summand.value.limbs.iter().map(|limb| limb.0))
-        .flatten()
-        .collect()
+        self.summands
+            .iter()
+            .map(|summand| summand.value.limbs.iter().map(|limb| limb.0))
+            .flatten()
+            .collect()
     }
 
     fn run_once(&self, witness: &PartitionWitness<F>, out_buffer: &mut GeneratedValues<F>) {
-        let summands: Vec<_> = self.summands.iter().map(|summand| witness.get_nonnative_target(summand.clone())).collect();
-        let summand_biguints: Vec<_> = summands.iter().map(|summand| summand.to_biguint()).collect();
+        let summands: Vec<_> = self
+            .summands
+            .iter()
+            .map(|summand| witness.get_nonnative_target(summand.clone()))
+            .collect();
+        let summand_biguints: Vec<_> = summands
+            .iter()
+            .map(|summand| summand.to_biguint())
+            .collect();
 
-        let sum_biguint = summand_biguints.iter().fold(BigUint::zero(), |a, b| a + b.clone());
+        let sum_biguint = summand_biguints
+            .iter()
+            .fold(BigUint::zero(), |a, b| a + b.clone());
 
         let modulus = FF::order();
         let (overflow_biguint, sum_reduced) = sum_biguint.div_rem(&modulus);
@@ -371,8 +394,6 @@ impl<F: RichField + Extendable<D>, const D: usize, FF: Field> SimpleGenerator<F>
         out_buffer.set_biguint_target(self.inv.clone(), inv_biguint);
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {
