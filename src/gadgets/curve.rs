@@ -98,6 +98,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         p1: &AffinePointTarget<C>,
         p2: &AffinePointTarget<C>,
     ) -> AffinePointTarget<C> {
+        let before = self.num_gates();
         let AffinePointTarget { x: x1, y: y1 } = p1;
         let AffinePointTarget { x: x2, y: y2 } = p2;
 
@@ -121,6 +122,7 @@ impl<F: RichField + Extendable<D>, const D: usize> CircuitBuilder<F, D> {
         let x3_norm = self.mul_nonnative(&x3, &z3_inv);
         let y3_norm = self.mul_nonnative(&y3, &z3_inv);
 
+        println!("NUM GATES: {}", self.num_gates() - before);
         AffinePointTarget {
             x: x3_norm,
             y: y3_norm,
@@ -297,6 +299,7 @@ mod tests {
 
         builder.connect_affine_point(&g_plus_2g_expected, &g_plus_2g_actual);
 
+        println!("NUMBER OF GATESSSSS: {}", builder.num_gates());
         let data = builder.build();
         let proof = data.prove(pw).unwrap();
 
@@ -304,7 +307,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_curve_mul() -> Result<()> {
         type F = GoldilocksField;
         const D: usize = 4;
@@ -338,7 +340,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_curve_random() -> Result<()> {
         type F = GoldilocksField;
         const D: usize = 4;

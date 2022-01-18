@@ -11,7 +11,7 @@ use crate::gadgets::biguint::BigUintTarget;
 use crate::gadgets::binary_arithmetic::BinaryTarget;
 use crate::gadgets::nonnative::NonNativeTarget;
 use crate::hash::hash_types::{HashOut, HashOutTarget};
-use crate::iop::target::Target;
+use crate::iop::target::{BoolTarget, Target};
 use crate::iop::wire::Wire;
 use crate::iop::witness::{PartialWitness, PartitionWitness, Witness};
 use crate::plonk::circuit_data::{CommonCircuitData, ProverOnlyCircuitData};
@@ -154,6 +154,10 @@ impl<F: Field> GeneratedValues<F> {
 
     pub fn set_target(&mut self, target: Target, value: F) {
         self.target_values.push((target, value))
+    }
+
+    pub fn set_bool_target(&mut self, target: BoolTarget, value: bool) {
+        self.set_target(target.target, F::from_bool(value))
     }
 
     pub fn set_u32_target(&mut self, target: U32Target, value: u32) {
